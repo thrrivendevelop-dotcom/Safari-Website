@@ -4,6 +4,7 @@ import FAQAccordion from "@/components/FAQAccordion";
 import { CALL_NUMBER, WHATSAPP_DISPLAY, EMAIL_ADDRESS, OFFICE_ADDRESS, api, waLink } from "@/lib/api";
 import { Phone, MessageCircle, Mail, MapPin, Clock } from "lucide-react";
 import { toast } from "sonner";
+import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
 
 const CARDS = [
   { Icon: Phone, label: "Call", value: CALL_NUMBER, sub: "Direct line to booking desk" },
@@ -23,6 +24,9 @@ export default function Contact() {
         <div className="max-w-5xl mx-auto px-6 text-center">
           <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl">Real humans, one message away.</h1>
           <p className="mt-4 text-white/80 max-w-2xl mx-auto">During park hours (6 AM – 7 PM IST) we reply on every channel inside 30 minutes.</p>
+          <div className="mt-8 flex justify-center">
+            <HeroWhatsAppButton testId="contact-hero-whatsapp" message="Hi! I have a question about a Ranthambore safari booking." />
+          </div>
         </div>
       </section>
 

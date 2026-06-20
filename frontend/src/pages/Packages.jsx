@@ -5,6 +5,7 @@ import { Check, ArrowRight } from "lucide-react";
 import { api, waLink } from "@/lib/api";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
 
 export default function Packages() {
   return (
@@ -19,6 +20,9 @@ export default function Packages() {
         <div className="relative z-10 max-w-4xl px-6 py-16">
           <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl">Your Perfect Ranthambore Story</h1>
           <p className="mt-4 text-white/85 text-lg max-w-2xl mx-auto">Five tested itineraries or a blank canvas we sketch with you on WhatsApp.</p>
+          <div className="mt-8 flex justify-center">
+            <HeroWhatsAppButton testId="packages-hero-whatsapp" message="Hi! I'd like to book a Ranthambore tour package. Please share details." />
+          </div>
         </div>
       </section>
 

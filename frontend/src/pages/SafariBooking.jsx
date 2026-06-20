@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { CheckCircle2, ChevronDown, Sunrise, Sunset, Minus, Plus, ArrowRight, AlertCircle } from "lucide-react";
 import { api, waLink } from "@/lib/api";
+import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
 import { SAFARI_HERO_IMG, SAFARI_PRICES, ZONES, SAFARI_TIMINGS } from "@/lib/content";
 
 const STEP_LABELS = ["Date & Session", "Safari Details", "Visitor Details"];
@@ -180,6 +181,9 @@ export default function SafariBooking() {
         <div className="relative z-10 max-w-4xl px-6 py-20">
           <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl">Book Your Ranthambore Safari — Simple. Fast. Confirmed.</h1>
           <p className="mt-4 text-white/85 text-lg">Three quick steps and a real human reply on WhatsApp. No payment taken on this website.</p>
+          <div className="mt-8 flex justify-center">
+            <HeroWhatsAppButton testId="safari-hero-whatsapp" message="Hi! I'd like to book a Ranthambore safari. Please share availability and pricing." />
+          </div>
         </div>
       </section>
 

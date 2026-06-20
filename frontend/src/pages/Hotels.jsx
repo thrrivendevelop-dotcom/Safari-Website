@@ -3,6 +3,7 @@ import PublicLayout from "@/components/PublicLayout";
 import { HOTELS, HOTELS_HERO_IMG } from "@/lib/content";
 import { Star, MapPin, Wifi, Coffee, Waves, X, ArrowRight } from "lucide-react";
 import { api, waLink } from "@/lib/api";
+import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
@@ -45,6 +46,9 @@ export default function Hotels() {
         <div className="relative z-10 max-w-4xl px-6 py-16">
           <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl">Sleep Where the Jungle Breathes</h1>
           <p className="mt-4 text-white/85 text-lg max-w-2xl mx-auto">From mud-walled homestays to canvas suites with butlers — every property here is one we have vetted personally.</p>
+          <div className="mt-8 flex justify-center">
+            <HeroWhatsAppButton testId="hotels-hero-whatsapp" message="Hi! I'd like to book a hotel near Ranthambore. Please share availability." />
+          </div>
         </div>
       </section>
 
