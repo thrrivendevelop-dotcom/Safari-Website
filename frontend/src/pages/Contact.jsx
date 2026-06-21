@@ -19,6 +19,7 @@ export default function Contact() {
     <PublicLayout
       title="Contact Ranthambore's Curator — WhatsApp Safari Booking Help"
       description="Contact Ranthambore's Curator for safari booking help. WhatsApp replies in under 30 minutes during park hours 6 AM to 7 PM IST."
+      transparentOnTop={false}
     >
       <section className="pt-32 pb-16 bg-[#1A2B1F] text-white">
         <div className="max-w-5xl mx-auto px-6 text-center">

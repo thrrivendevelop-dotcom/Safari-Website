@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import PublicLayout from "@/components/PublicLayout";
-import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,19 +10,6 @@ import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
 import { SAFARI_HERO_IMG, SAFARI_PRICES, ZONES, SAFARI_TIMINGS } from "@/lib/content";
 
 const STEP_LABELS = ["Date & Session", "Safari Details", "Visitor Details"];
-
-// derive availability per date deterministically (no backend needed)
-function getDateStatus(d) {
-  if (!d) return "green";
-  const day = d.getDay();
-  // Wed: zones 1-5 closed; Tue: zones 6-10 closed (treat both as red/limited)
-  if (day === 3) return "red"; // Wed
-  if (day === 2) return "orange"; // Tue tatkal-only
-  const seed = (d.getDate() + d.getMonth()) % 5;
-  if (seed === 0) return "yellow";
-  if (seed === 1) return "red";
-  return "green";
-}
 
 export default function SafariBooking() {
   const [step, setStep] = useState(1);
@@ -219,33 +205,23 @@ export default function SafariBooking() {
             {step === 1 && (
               <div className="bg-white rounded-2xl p-6 md:p-8 border border-stone-200 shadow-sm">
                 <h2 className="font-serif text-2xl mb-2">Pick Your Date & Session</h2>
-                <p className="text-sm text-stone-600 mb-5">
-                  <span className="inline-flex items-center gap-1 mr-3"><span className="w-2 h-2 rounded-full bg-green-500" /> Available</span>
-                  <span className="inline-flex items-center gap-1 mr-3"><span className="w-2 h-2 rounded-full bg-yellow-500" /> Limited</span>
-                  <span className="inline-flex items-center gap-1 mr-3"><span className="w-2 h-2 rounded-full bg-red-500" /> Fully Booked</span>
-                  <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500" /> Tatkal Only</span>
-                </p>
+                <p className="text-sm text-stone-600 mb-5">Choose any future date for your safari, then pick a morning or evening shift.</p>
                 <div className="grid md:grid-cols-2 gap-6 items-start">
                   <div data-testid="booking-calendar">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-                      modifiers={{
-                        green: (d) => getDateStatus(d) === "green",
-                        yellow: (d) => getDateStatus(d) === "yellow",
-                        red: (d) => getDateStatus(d) === "red",
-                        orange: (d) => getDateStatus(d) === "orange",
-                      }}
-                      modifiersStyles={{
-                        green: { backgroundColor: "#dcfce7", color: "#166534" },
-                        yellow: { backgroundColor: "#fef9c3", color: "#854d0e" },
-                        red: { backgroundColor: "#fee2e2", color: "#991b1b" },
-                        orange: { backgroundColor: "#ffedd5", color: "#9a3412" },
-                      }}
-                      className="rounded-md border"
+                    <label className="text-sm font-medium block mb-2">Safari Date</label>
+                    <input
+                      type="date"
+                      data-testid="booking-date-input"
+                      min={new Date().toISOString().slice(0, 10)}
+                      value={date ? date.toISOString().slice(0, 10) : ""}
+                      onChange={(e) => setDate(e.target.value ? new Date(e.target.value) : null)}
+                      className="w-full px-3 py-3 rounded-lg border border-stone-300 text-base focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40"
                     />
+                    {date && (
+                      <p className="mt-2 text-xs text-stone-500">
+                        Selected: <span className="font-medium text-[#1C1C1C]">{date.toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</span>
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-3">
                     <button
