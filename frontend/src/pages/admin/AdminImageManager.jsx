@@ -17,9 +17,9 @@ export default function AdminImageManager() {
     setCropSrc(dataUrl);
   }
 
-  function handleConfirm(dataUrl) {
+  async function handleConfirm(dataUrl) {
     try {
-      setImage(target.key, dataUrl);
+      await setImage(target.key, dataUrl);
       toast.success("Image saved.");
     } catch {
       toast.error("Could not save image. It may be too large.");
@@ -29,10 +29,12 @@ export default function AdminImageManager() {
     }
   }
 
-  function remove(slot) {
+  async function remove(slot) {
     if (!window.confirm(`Remove image for "${slot.label}"?`)) return;
-    removeImage(slot.key);
-    toast.success("Image removed.");
+    try {
+      await removeImage(slot.key);
+      toast.success("Image removed.");
+    } catch { toast.error("Could not remove image."); }
   }
 
   return (

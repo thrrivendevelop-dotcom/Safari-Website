@@ -1,41 +1,45 @@
 import { useCallback, useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
-const KEY = "rtc_hotels";
 const EVENT = "rtc:hotels-updated";
 
-function read() {
-  try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : []; }
-  catch { return []; }
-}
-function write(list) {
-  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* quota */ }
-  window.dispatchEvent(new Event(EVENT));
-}
-
 export function useHotels() {
-  const [hotels, setHotels] = useState(() => read());
+  const [hotels, setHotels] = useState([]);
+
+  const refresh = useCallback(async () => {
+    try {
+      const { data } = await api.get("/hotels");
+      setHotels(data || []);
+    } catch {
+      setHotels([]);
+    }
+  }, []);
+
   useEffect(() => {
-    const handler = () => setHotels(read());
+    refresh();
+    const handler = () => refresh();
     window.addEventListener(EVENT, handler);
-    window.addEventListener("storage", handler);
-    return () => {
-      window.removeEventListener(EVENT, handler);
-      window.removeEventListener("storage", handler);
-    };
+    return () => window.removeEventListener(EVENT, handler);
+  }, [refresh]);
+
+  const addHotel = useCallback(async (h) => {
+    const { data } = await api.post("/admin/hotels", h);
+    setHotels((prev) => [data, ...prev]);
+    window.dispatchEvent(new Event(EVENT));
+    return data;
   }, []);
 
-  const addHotel = useCallback((h) => {
-    const next = [{ ...h, id: `h_${Date.now()}_${Math.random().toString(36).slice(2,7)}`, created_at: new Date().toISOString() }, ...read()];
-    write(next); setHotels(next);
-  }, []);
-  const updateHotel = useCallback((id, patch) => {
-    const next = read().map((h) => h.id === id ? { ...h, ...patch } : h);
-    write(next); setHotels(next);
-  }, []);
-  const removeHotel = useCallback((id) => {
-    const next = read().filter((h) => h.id !== id);
-    write(next); setHotels(next);
+  const updateHotel = useCallback(async (id, patch) => {
+    await api.patch(`/admin/hotels/${id}`, patch);
+    setHotels((prev) => prev.map((x) => x.id === id ? { ...x, ...patch } : x));
+    window.dispatchEvent(new Event(EVENT));
   }, []);
 
-  return { hotels, addHotel, updateHotel, removeHotel };
+  const removeHotel = useCallback(async (id) => {
+    await api.delete(`/admin/hotels/${id}`);
+    setHotels((prev) => prev.filter((x) => x.id !== id));
+    window.dispatchEvent(new Event(EVENT));
+  }, []);
+
+  return { hotels, addHotel, updateHotel, removeHotel, refresh };
 }

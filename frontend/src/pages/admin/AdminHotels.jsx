@@ -33,7 +33,7 @@ export default function AdminHotels() {
     setForm((f) => ({ ...f, [cropTarget]: dataUrl }));
     setCropSrc(null); setCropTarget(null);
   }
-  function save() {
+  async function save() {
     if (!form.name.trim() || !form.distance.trim() || !form.description.trim()) {
       toast.error("Name, distance and description are required.");
       return;
@@ -49,15 +49,18 @@ export default function AdminHotels() {
         image1: form.image1 || null,
         image2: form.image2 || null,
       };
-      if (editing) { updateHotel(editing.id, payload); toast.success("Hotel updated."); }
-      else { addHotel(payload); toast.success("Hotel published."); }
+      if (editing) { await updateHotel(editing.id, payload); toast.success("Hotel updated."); }
+      else { await addHotel(payload); toast.success("Hotel published."); }
       setOpen(false);
-    } finally { setSaving(false); }
+    } catch { toast.error("Could not save hotel."); }
+    finally { setSaving(false); }
   }
-  function remove(h) {
+  async function remove(h) {
     if (!window.confirm(`Delete ${h.name}?`)) return;
-    removeHotel(h.id);
-    toast.success("Hotel deleted.");
+    try {
+      await removeHotel(h.id);
+      toast.success("Hotel deleted.");
+    } catch { toast.error("Could not delete hotel."); }
   }
 
   return (

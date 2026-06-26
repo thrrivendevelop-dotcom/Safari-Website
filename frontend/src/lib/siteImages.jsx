@@ -1,50 +1,40 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
-const STORAGE_KEY = "rtc_site_images";
-const EVENT = "rtc:images-updated";
-
-function readStore() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function writeStore(map) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(map)); } catch { /* quota */ }
-}
-
-const Ctx = createContext({ images: {}, setImage: () => {}, removeImage: () => {} });
+const Ctx = createContext({ images: {}, setImage: async () => {}, removeImage: async () => {}, refresh: async () => {} });
 
 export function SiteImagesProvider({ children }) {
-  const [images, setImages] = useState(() => readStore());
+  const [images, setImages] = useState({});
+
+  const refresh = useCallback(async () => {
+    try {
+      const { data } = await api.get("/images");
+      setImages(data || {});
+    } catch {
+      setImages({});
+    }
+  }, []);
 
   useEffect(() => {
-    const handler = () => setImages(readStore());
-    window.addEventListener(EVENT, handler);
-    window.addEventListener("storage", handler);
-    return () => {
-      window.removeEventListener(EVENT, handler);
-      window.removeEventListener("storage", handler);
-    };
+    refresh();
+    const onPing = () => refresh();
+    window.addEventListener("rtc:images-updated", onPing);
+    return () => window.removeEventListener("rtc:images-updated", onPing);
+  }, [refresh]);
+
+  const setImage = useCallback(async (key, dataUrl) => {
+    await api.put(`/admin/images/${key}`, { data_url: dataUrl });
+    setImages((prev) => ({ ...prev, [key]: dataUrl }));
+    window.dispatchEvent(new Event("rtc:images-updated"));
   }, []);
 
-  const setImage = useCallback((key, dataUrl) => {
-    const next = { ...readStore(), [key]: dataUrl };
-    writeStore(next);
-    setImages(next);
-    window.dispatchEvent(new Event(EVENT));
+  const removeImage = useCallback(async (key) => {
+    await api.delete(`/admin/images/${key}`);
+    setImages((prev) => { const c = { ...prev }; delete c[key]; return c; });
+    window.dispatchEvent(new Event("rtc:images-updated"));
   }, []);
 
-  const removeImage = useCallback((key) => {
-    const cur = readStore();
-    delete cur[key];
-    writeStore(cur);
-    setImages(cur);
-    window.dispatchEvent(new Event(EVENT));
-  }, []);
-
-  return <Ctx.Provider value={{ images, setImage, removeImage }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ images, setImage, removeImage, refresh }}>{children}</Ctx.Provider>;
 }
 
 export function useSiteImage(key, fallback = null) {
