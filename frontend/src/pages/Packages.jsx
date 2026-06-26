@@ -6,6 +6,8 @@ import { api, waLink } from "@/lib/api";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
+import { useSiteImages } from "@/lib/siteImages";
+import { PACKAGE_SLOT_BY_NAME } from "@/lib/imageSlots";
 
 export default function Packages() {
   return (
@@ -40,6 +42,8 @@ export default function Packages() {
 }
 
 function PackageCard({ pkg, idx }) {
+  const { images } = useSiteImages();
+  const img = images[PACKAGE_SLOT_BY_NAME[pkg.name]] || pkg.img;
   const [loading, setLoading] = useState(false);
   async function book() {
     setLoading(true);
@@ -62,7 +66,7 @@ function PackageCard({ pkg, idx }) {
   return (
     <article data-testid={`package-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-stone-200 hover:-translate-y-1 hover:shadow-xl transition-all flex flex-col">
       <div className="relative h-52">
-        <img src={pkg.img} alt={`${pkg.name} package — Ranthambore Tour`} className="w-full h-full object-cover" />
+        <img src={img} alt={`${pkg.name} package — Ranthambore Tour`} className="w-full h-full object-cover" />
         {pkg.badge && <span className="absolute top-3 left-3 text-[10px] uppercase tracking-wider bg-[#C8860A] text-white px-2.5 py-1 rounded-full">{pkg.badge}</span>}
       </div>
       <div className="p-6 flex flex-col flex-1">

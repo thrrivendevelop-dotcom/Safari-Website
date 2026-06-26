@@ -5,6 +5,7 @@ import PublicLayout from "@/components/PublicLayout";
 import CallbackWidget from "@/components/CallbackWidget";
 import FAQAccordion from "@/components/FAQAccordion";
 import { api, waLink } from "@/lib/api";
+import { useSiteImage, useSiteImages } from "@/lib/siteImages";
 import {
   HERO_IMG, HERO_ALERTS, WHAT_WE_DO, ZONES, ZONE_IMAGES, HOW_IT_WORKS,
   ATTRACTIONS, ZONE_MAP_BG,
@@ -16,8 +17,16 @@ const FEATURED_ATTRACTIONS = ATTRACTIONS.filter(
   (a) => a.name === "Ranthambore Fort" || a.name === "Trinetra Ganesh Temple"
 );
 
+const ATTRACTION_SLOT = {
+  "Ranthambore Fort": "attraction_fort",
+  "Trinetra Ganesh Temple": "attraction_temple",
+};
+
 export default function Home() {
   const [reviews, setReviews] = useState([]);
+  const { images } = useSiteImages();
+  const heroImg = useSiteImage("hero_bg", HERO_IMG);
+  const tatkalBg = useSiteImage("tatkal_bg");
   useEffect(() => {
     api.get("/reviews").then(({ data }) => setReviews(data || [])).catch(() => {});
   }, []);
@@ -29,7 +38,7 @@ export default function Home() {
       {/* HERO */}
       <section data-testid="hero-section" className="relative -mt-[72px] pt-[72px] min-h-[100svh] flex items-center justify-center text-center text-white overflow-hidden">
         <img
-          src={HERO_IMG}
+          src={heroImg}
           alt="Bengal tiger walking through golden grass at sunrise — Ranthambore National Park"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -143,7 +152,7 @@ export default function Home() {
               >
                 <div className="relative h-32 overflow-hidden">
                   <img
-                    src={ZONE_IMAGES[i]}
+                    src={images[`zone_${z.id}`] || ZONE_IMAGES[i]}
                     alt={`Ranthambore Zone ${z.id} ${z.name}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -188,8 +197,11 @@ export default function Home() {
       </section>
 
       {/* TATKAL */}
-      <section className="py-20 md:py-28 bg-[#1A2B1F] text-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+      <section className="relative py-20 md:py-28 bg-[#1A2B1F] text-white overflow-hidden">
+        {tatkalBg && (
+          <img src={tatkalBg} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-25" />
+        )}
+        <div className="relative max-w-4xl mx-auto px-6 text-center">
           <span className="inline-block text-xs tracking-[0.3em] uppercase text-[#E63946] mb-3 bg-[#E63946]/10 px-3 py-1 rounded-full border border-[#E63946]/40">
             Tatkal · Last-Minute
           </span>
@@ -225,7 +237,7 @@ export default function Home() {
             {FEATURED_ATTRACTIONS.map((a, i) => (
               <article key={i} data-testid={`attraction-${i}`} className="bg-white rounded-2xl overflow-hidden border border-stone-200 hover:-translate-y-1 transition-transform">
                 <div className="h-72 overflow-hidden">
-                  <img src={a.img} alt={`${a.name} — Ranthambore tourist attraction`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                  <img src={images[ATTRACTION_SLOT[a.name]] || a.img} alt={`${a.name} — Ranthambore tourist attraction`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-8">
                   <h3 className="font-serif text-2xl mb-3">{a.name}</h3>

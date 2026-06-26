@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { MapPin, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSiteImage } from "@/lib/siteImages";
 
 const links = [
   { to: "/safari-booking", label: "Safari Booking" },
@@ -13,6 +14,7 @@ const links = [
 export default function Navbar({ transparentOnTop = true }) {
   const [scrolled, setScrolled] = useState(!transparentOnTop);
   const [open, setOpen] = useState(false);
+  const logo = useSiteImage("logo");
 
   useEffect(() => {
     if (!transparentOnTop) return;
@@ -32,9 +34,13 @@ export default function Navbar({ transparentOnTop = true }) {
     >
       <div className="max-w-7xl mx-auto px-5 md:px-10 py-3 flex items-center justify-between">
         <Link to="/" data-testid="logo-link" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#C8860A] flex items-center justify-center shadow-md">
-            <MapPin className="w-5 h-5 text-white" strokeWidth={2.5} />
-          </div>
+          {logo ? (
+            <img src={logo} alt="Ranthambore Safari Curator logo" className="w-10 h-10 rounded-full object-cover shadow-md" />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-[#C8860A] flex items-center justify-center shadow-md">
+              <MapPin className="w-5 h-5 text-white" strokeWidth={2.5} />
+            </div>
+          )}
           <div className="leading-tight">
             <div className="font-serif text-white text-lg sm:text-xl font-bold">
               Ranthambore Safari Curator

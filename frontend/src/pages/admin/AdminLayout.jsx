@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, CalendarDays, MessageSquare, Activity, LogOut, DollarSign, Star } from "lucide-react";
+import { LayoutDashboard, CalendarDays, MessageSquare, Activity, LogOut, DollarSign, Star, ImageIcon, Hotel } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -8,6 +8,8 @@ const NAV = [
   { to: "/admin/bookings", label: "Bookings", icon: CalendarDays },
   { to: "/admin/inquiries", label: "Inquiries", icon: MessageSquare },
   { to: "/admin/reviews", label: "Reviews", icon: Star },
+  { to: "/admin/image-manager", label: "Image Manager", icon: ImageIcon },
+  { to: "/admin/hotels", label: "Hotels", icon: Hotel },
   { to: "/admin/live-feed", label: "Live Feed", icon: Activity },
 ];
 

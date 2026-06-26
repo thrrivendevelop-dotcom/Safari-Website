@@ -125,6 +125,41 @@ class Review(BaseModel):
 class ReviewUpdate(BaseModel):
     hidden: Optional[bool] = None
 
+class HotelCreate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    name: str
+    stars: float
+    distance: str
+    description: str
+    amenities: List[str] = Field(default_factory=list)
+    image1: Optional[str] = None
+    image2: Optional[str] = None
+
+class Hotel(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: str = Field(default_factory=utc_now_iso)
+    name: str
+    stars: float
+    distance: str
+    description: str
+    amenities: List[str] = Field(default_factory=list)
+    image1: Optional[str] = None
+    image2: Optional[str] = None
+
+class HotelUpdate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    name: Optional[str] = None
+    stars: Optional[float] = None
+    distance: Optional[str] = None
+    description: Optional[str] = None
+    amenities: Optional[List[str]] = None
+    image1: Optional[str] = None
+    image2: Optional[str] = None
+
+class SiteImagePayload(BaseModel):
+    data_url: str
+
 class StatusUpdate(BaseModel):
     status: Literal["pending", "confirmed", "cancelled"]
 
@@ -281,6 +316,60 @@ async def admin_delete_review(review_id: str, _: bool = Depends(require_admin)):
     res = await db.reviews.delete_one({"id": review_id})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Review not found")
+    return {"ok": True}
+
+# ---- Hotels ----
+@api_router.get("/hotels", response_model=List[Hotel])
+async def list_hotels_public():
+    docs = await db.hotels.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return docs
+
+@api_router.get("/admin/hotels", response_model=List[Hotel])
+async def admin_list_hotels(_: bool = Depends(require_admin)):
+    docs = await db.hotels.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return docs
+
+@api_router.post("/admin/hotels", response_model=Hotel)
+async def admin_create_hotel(payload: HotelCreate, _: bool = Depends(require_admin)):
+    h = Hotel(**payload.model_dump())
+    await db.hotels.insert_one(h.model_dump())
+    return h
+
+@api_router.patch("/admin/hotels/{hotel_id}")
+async def admin_update_hotel(hotel_id: str, payload: HotelUpdate, _: bool = Depends(require_admin)):
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if not update:
+        return {"ok": True}
+    res = await db.hotels.update_one({"id": hotel_id}, {"$set": update})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Hotel not found")
+    return {"ok": True}
+
+@api_router.delete("/admin/hotels/{hotel_id}")
+async def admin_delete_hotel(hotel_id: str, _: bool = Depends(require_admin)):
+    res = await db.hotels.delete_one({"id": hotel_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Hotel not found")
+    return {"ok": True}
+
+# ---- Site Images (key-value) ----
+@api_router.get("/images")
+async def list_site_images():
+    docs = await db.site_images.find({}, {"_id": 0}).to_list(500)
+    return {d["key"]: d.get("data_url") for d in docs if d.get("data_url")}
+
+@api_router.put("/admin/images/{key}")
+async def upsert_site_image(key: str, payload: SiteImagePayload, _: bool = Depends(require_admin)):
+    await db.site_images.update_one(
+        {"key": key},
+        {"$set": {"key": key, "data_url": payload.data_url, "updated_at": utc_now_iso()}},
+        upsert=True,
+    )
+    return {"ok": True}
+
+@api_router.delete("/admin/images/{key}")
+async def delete_site_image(key: str, _: bool = Depends(require_admin)):
+    await db.site_images.delete_one({"key": key})
     return {"ok": True}
 
 # Include router
