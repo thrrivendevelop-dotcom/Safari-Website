@@ -11,7 +11,7 @@ export default function Footer() {
             <div className="w-9 h-9 rounded-full bg-[#C8860A] flex items-center justify-center">
               <MapPin className="w-5 h-5 text-white" strokeWidth={2.5} />
             </div>
-            <div className="font-serif text-xl font-bold">Ranthambore&apos;s Curator</div>
+            <div className="font-serif text-xl font-bold">Ranthambore Safari Curator</div>
           </div>
           <p className="text-white/70 text-sm leading-relaxed max-w-sm">
             Independent safari booking concierge for Ranthambore National Park. Real humans, instant WhatsApp confirmations.
@@ -24,7 +24,6 @@ export default function Footer() {
             <li><Link to="/hotels" className="hover:text-[#C8860A]">Hotels</Link></li>
             <li><Link to="/packages" className="hover:text-[#C8860A]">Packages</Link></li>
             <li><Link to="/contact" className="hover:text-[#C8860A]">Contact</Link></li>
-            <li><Link to="/#safari-prices" className="hover:text-[#C8860A]">Safari Prices</Link></li>
             <li><Link to="/#faq" className="hover:text-[#C8860A]">FAQ</Link></li>
           </ul>
         </div>
@@ -40,8 +39,8 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex flex-col md:flex-row gap-3 justify-between text-xs text-white/50">
-          <span>Disclaimer: Ranthambore&apos;s Curator is a private safari facilitation service. Not the official Rajasthan Forest Department website.</span>
-          <span>© 2026 Ranthambore&apos;s Curator. All rights reserved.</span>
+          <span>Disclaimer: Ranthambore Safari Curator is a private safari facilitation service. Not the official Rajasthan Forest Department website.</span>
+          <span>© 2026 Ranthambore Safari Curator. All rights reserved.</span>
         </div>
       </div>
     </footer>

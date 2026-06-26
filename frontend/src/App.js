@@ -14,6 +14,7 @@ import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminOverview from "@/pages/admin/AdminOverview";
 import AdminBookings from "@/pages/admin/AdminBookings";
 import AdminInquiries from "@/pages/admin/AdminInquiries";
+import AdminReviews from "@/pages/admin/AdminReviews";
 import AdminLiveFeed from "@/pages/admin/AdminLiveFeed";
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/admin/overview" element={<AdminOverview />} />
             <Route path="/admin/bookings" element={<AdminBookings />} />
             <Route path="/admin/inquiries" element={<AdminInquiries />} />
+            <Route path="/admin/reviews" element={<AdminReviews />} />
             <Route path="/admin/live-feed" element={<AdminLiveFeed />} />
           </Route>
 

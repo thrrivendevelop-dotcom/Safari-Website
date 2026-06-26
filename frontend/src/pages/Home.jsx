@@ -1,20 +1,29 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Compass, BedDouble, Package, Waves, Star, CheckCircle2, Quote } from "lucide-react";
 import PublicLayout from "@/components/PublicLayout";
 import CallbackWidget from "@/components/CallbackWidget";
 import FAQAccordion from "@/components/FAQAccordion";
-import { waLink } from "@/lib/api";
+import { api, waLink } from "@/lib/api";
 import {
-  HERO_IMG, HERO_ALERTS, SAFARI_PRICES, WHAT_WE_DO, ZONES, ZONE_IMAGES, HOW_IT_WORKS,
-  TATKAL_JEEP_IMG, ATTRACTIONS, TESTIMONIALS, ZONE_MAP_BG,
+  HERO_IMG, HERO_ALERTS, WHAT_WE_DO, ZONES, ZONE_IMAGES, HOW_IT_WORKS,
+  ATTRACTIONS, ZONE_MAP_BG,
 } from "@/lib/content";
 
 const ICONS = { Compass, BedDouble, Package, Waves };
 
+const FEATURED_ATTRACTIONS = ATTRACTIONS.filter(
+  (a) => a.name === "Ranthambore Fort" || a.name === "Trinetra Ganesh Temple"
+);
+
 export default function Home() {
+  const [reviews, setReviews] = useState([]);
+  useEffect(() => {
+    api.get("/reviews").then(({ data }) => setReviews(data || [])).catch(() => {});
+  }, []);
   return (
     <PublicLayout
-      title="Ranthambore Safari Booking — Book Tiger Safari Online | Ranthambore's Curator"
+      title="Ranthambore Safari Booking — Book Tiger Safari Online | Ranthambore Safari Curator"
       description="Book Ranthambore Jeep Safari, Canter Safari and Tatkal Safari online. Best prices, instant WhatsApp confirmation. Trusted booking partner for Ranthambore National Park."
     >
       {/* HERO */}
@@ -52,13 +61,6 @@ export default function Home() {
               Explore Zones
             </a>
             <a
-              href="#safari-prices"
-              data-testid="hero-prices-cta"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border-2 border-white/90 text-white font-semibold text-sm uppercase tracking-wider hover:bg-white/10 transition-colors"
-            >
-              Safari Prices
-            </a>
-            <a
               href={waLink("Hi! I'd like to book a Ranthambore safari. Please share availability and pricing.")}
               target="_blank"
               rel="noopener noreferrer"
@@ -82,52 +84,6 @@ export default function Home() {
           <span className="px-8 text-sm">{HERO_ALERTS}</span>
         </div>
       </div>
-
-      {/* PRICING TABLE */}
-      <section id="safari-prices" className="py-20 md:py-28 bg-[#F9F5EE]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <div className="text-xs tracking-[0.3em] uppercase text-[#C8860A] mb-3">Safari Pricing</div>
-            <h2 className="font-serif text-3xl sm:text-5xl font-bold">Transparent Pricing — No Hidden Charges</h2>
-            <p className="mt-3 text-stone-600">All prices are per person unless otherwise stated. GST applicable at 5%.</p>
-          </div>
-
-          <div className="overflow-x-auto rounded-xl shadow-sm border border-stone-200" data-testid="safari-prices-table">
-            <table className="w-full text-left">
-              <thead className="bg-black text-white">
-                <tr>
-                  <th className="px-4 sm:px-6 py-4 text-sm font-bold">Safari Type</th>
-                  <th className="px-4 sm:px-6 py-4 text-sm font-bold">Indian Price</th>
-                  <th className="px-4 sm:px-6 py-4 text-sm font-bold">Foreigner Price</th>
-                  <th className="px-4 sm:px-6 py-4 text-sm font-bold">Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                {SAFARI_PRICES.map((p, i) => (
-                  <tr key={p.value} className={i % 2 === 0 ? "bg-white" : "bg-[#F5F5F5]"}>
-                    <td className="px-4 sm:px-6 py-4 font-medium">{p.type}</td>
-                    <td className="px-4 sm:px-6 py-4">₹{p.indian.toLocaleString("en-IN")}{p.total ? " total" : ""}</td>
-                    <td className="px-4 sm:px-6 py-4">₹{p.foreigner.toLocaleString("en-IN")}{p.total ? " total" : ""}</td>
-                    <td className="px-4 sm:px-6 py-4 text-stone-700">{p.sub}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-5 text-sm text-stone-600 text-center max-w-2xl mx-auto">
-            Prices subject to change as per Rajasthan Forest Department regulations. Contact us on WhatsApp for latest confirmed rates.
-          </p>
-          <div className="mt-8 text-center">
-            <Link
-              to="/safari-booking"
-              data-testid="prices-book-now"
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#C8860A] hover:bg-[#a86f08] text-white font-semibold text-sm transition-colors"
-            >
-              Book Now <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* WHAT WE DO */}
       <section className="py-20 md:py-28">
@@ -233,20 +189,20 @@ export default function Home() {
 
       {/* TATKAL */}
       <section className="py-20 md:py-28 bg-[#1A2B1F] text-white">
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <span className="inline-block text-xs tracking-[0.3em] uppercase text-[#E63946] mb-3 bg-[#E63946]/10 px-3 py-1 rounded-full border border-[#E63946]/40">
+            Tatkal · Last-Minute
+          </span>
+          <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-5">Plans change. Tigers don&apos;t wait.</h2>
+          <p className="text-white/80 leading-relaxed mb-6">
+            The forest department releases Tatkal seats exactly one day before each safari. We monitor the window in real time and grab them the second they open.
+          </p>
+          <ul className="space-y-3 text-white/80 text-sm mb-8 inline-block text-left">
+            <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-[#C8860A] mt-0.5" />Window opens 9:30 AM, one day before your shift</li>
+            <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-[#C8860A] mt-0.5" />Higher fees, but the only way to book within 24 hours</li>
+            <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-[#C8860A] mt-0.5" />We hold a Tatkal queue position for you the moment you submit</li>
+          </ul>
           <div>
-            <span className="inline-block text-xs tracking-[0.3em] uppercase text-[#E63946] mb-3 bg-[#E63946]/10 px-3 py-1 rounded-full border border-[#E63946]/40">
-              Tatkal · Last-Minute
-            </span>
-            <h2 className="font-serif text-3xl sm:text-5xl font-bold mb-5">Plans change. Tigers don&apos;t wait.</h2>
-            <p className="text-white/80 leading-relaxed mb-6">
-              The forest department releases Tatkal seats exactly one day before each safari. We monitor the window in real time and grab them the second they open.
-            </p>
-            <ul className="space-y-3 text-white/80 text-sm mb-8">
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-[#C8860A] mt-0.5" />Window opens 9:30 AM, one day before your shift</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-[#C8860A] mt-0.5" />Higher fees, but the only way to book within 24 hours</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-5 h-5 text-[#C8860A] mt-0.5" />We hold a Tatkal queue position for you the moment you submit</li>
-            </ul>
             <Link
               to="/safari-booking#tatkal"
               data-testid="tatkal-cta"
@@ -254,14 +210,6 @@ export default function Home() {
             >
               Check Tatkal Availability <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
-          <div className="relative">
-            <img
-              src={TATKAL_JEEP_IMG}
-              alt="Safari jeep ready for Ranthambore Tatkal safari"
-              className="rounded-2xl w-full h-[420px] object-cover shadow-2xl"
-            />
-            <div className="absolute inset-0 bg-[#C8860A]/20 rounded-2xl" />
           </div>
         </div>
       </section>
@@ -273,15 +221,15 @@ export default function Home() {
             <div className="text-xs tracking-[0.3em] uppercase text-[#C8860A] mb-3">Around the Park</div>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold">Stories older than the tigers.</h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ATTRACTIONS.map((a, i) => (
+          <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {FEATURED_ATTRACTIONS.map((a, i) => (
               <article key={i} data-testid={`attraction-${i}`} className="bg-white rounded-2xl overflow-hidden border border-stone-200 hover:-translate-y-1 transition-transform">
-                <div className="h-52 overflow-hidden">
+                <div className="h-72 overflow-hidden">
                   <img src={a.img} alt={`${a.name} — Ranthambore tourist attraction`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                 </div>
-                <div className="p-6">
-                  <h3 className="font-serif text-xl mb-2">{a.name}</h3>
-                  <p className="text-sm text-stone-600 leading-relaxed">{a.text}</p>
+                <div className="p-8">
+                  <h3 className="font-serif text-2xl mb-3">{a.name}</h3>
+                  <p className="text-base text-stone-600 leading-relaxed">{a.text}</p>
                 </div>
               </article>
             ))}
@@ -307,29 +255,36 @@ export default function Home() {
             <div className="text-xs tracking-[0.3em] uppercase text-[#C8860A] mb-3">From the Field</div>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold">What Our Guests Say</h2>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} data-testid={`testimonial-${i}`} className="bg-black/30 backdrop-blur p-8 rounded-2xl border border-white/10">
-                <Quote className="w-7 h-7 text-[#C8860A] mb-3" />
-                <p className="text-white/85 leading-relaxed text-[15px]">“{t.quote}”</p>
-                <div className="flex items-center gap-1 mt-5 text-[#C8860A]">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-current" />
-                  ))}
-                </div>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#C8860A] text-white font-serif text-lg flex items-center justify-center">
-                    {t.name[0]}
+          {reviews.length === 0 ? (
+            <div className="text-center text-white/70 text-lg py-10" data-testid="no-reviews">Reviews coming soon</div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reviews.map((t, i) => (
+                <div key={t.id || i} data-testid={`testimonial-${i}`} className="bg-black/30 backdrop-blur p-8 rounded-2xl border border-white/10">
+                  <Quote className="w-7 h-7 text-[#C8860A] mb-3" />
+                  <p className="text-white/85 leading-relaxed text-[15px]">“{t.text}”</p>
+                  <div className="flex items-center gap-1 mt-5 text-[#C8860A]">
+                    {[...Array(Math.max(0, Math.min(5, Number(t.rating) || 5)))].map((_, j) => (
+                      <Star key={j} className="w-4 h-4 fill-current" />
+                    ))}
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold">{t.name}</div>
-                    <div className="text-xs text-white/60">{t.city}</div>
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#C8860A] text-white font-serif text-lg flex items-center justify-center overflow-hidden">
+                      {t.photo ? (
+                        <img src={t.photo} alt={t.name} className="w-full h-full object-cover" />
+                      ) : (
+                        (t.name || "G")[0]
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold">{t.name}</div>
+                    </div>
+                    <span className="ml-auto text-[10px] uppercase tracking-wider bg-green-500/20 text-green-300 px-2 py-1 rounded-full">Verified Guest</span>
                   </div>
-                  <span className="ml-auto text-[10px] uppercase tracking-wider bg-green-500/20 text-green-300 px-2 py-1 rounded-full">Verified</span>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

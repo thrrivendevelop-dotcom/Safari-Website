@@ -22,7 +22,7 @@ db = client[os.environ['DB_NAME']]
 
 ADMIN_PIN = os.environ.get('ADMIN_PIN', '73921846')
 
-app = FastAPI(title="Ranthambore's Curator API")
+app = FastAPI(title="Ranthambore Safari Curator API")
 api_router = APIRouter(prefix="/api")
 
 # ============ MODELS ============
@@ -38,11 +38,11 @@ class BookingCreate(BaseModel):
     date: str
     shift: Literal["morning", "evening"]
     vehicle: str
-    zone: str
-    nationality: Literal["Indian", "Foreigner"]
+    zone: Optional[str] = None
+    nationality: Optional[str] = None
     guests: int
-    per_person: float
-    total: float
+    per_person: Optional[float] = None
+    total: Optional[float] = None
     addons: List[str] = Field(default_factory=list)
     full_name: str
     email: str
@@ -64,11 +64,11 @@ class Booking(BaseModel):
     date: str
     shift: str
     vehicle: str
-    zone: str
-    nationality: str
+    zone: Optional[str] = None
+    nationality: Optional[str] = None
     guests: int
-    per_person: float
-    total: float
+    per_person: Optional[float] = None
+    total: Optional[float] = None
     addons: List[str] = Field(default_factory=list)
     full_name: str
     email: str
@@ -103,6 +103,28 @@ class Inquiry(BaseModel):
 class AdminLogin(BaseModel):
     pin: str
 
+class ReviewCreate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    name: str
+    rating: int = 5
+    text: str
+    photo: Optional[str] = None
+    source_url: Optional[str] = None
+
+class Review(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: str = Field(default_factory=utc_now_iso)
+    name: str
+    rating: int = 5
+    text: str
+    photo: Optional[str] = None
+    source_url: Optional[str] = None
+    hidden: bool = False
+
+class ReviewUpdate(BaseModel):
+    hidden: Optional[bool] = None
+
 class StatusUpdate(BaseModel):
     status: Literal["pending", "confirmed", "cancelled"]
 
@@ -118,7 +140,7 @@ def require_admin(x_admin_pin: Optional[str] = Header(default=None)):
 # ============ ROUTES ============
 @api_router.get("/")
 async def root():
-    return {"message": "Ranthambore's Curator API", "status": "ok"}
+    return {"message": "Ranthambore Safari Curator API", "status": "ok"}
 
 # ---- Bookings ----
 @api_router.post("/bookings", response_model=Booking)
@@ -226,6 +248,40 @@ async def live_feed(_: bool = Depends(require_admin)):
         })
     feed.sort(key=lambda x: x.get("created_at") or "", reverse=True)
     return {"items": feed[:50]}
+
+# ---- Reviews ----
+@api_router.get("/reviews", response_model=List[Review])
+async def public_reviews():
+    docs = await db.reviews.find({"hidden": {"$ne": True}}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    return docs
+
+@api_router.get("/admin/reviews", response_model=List[Review])
+async def admin_list_reviews(_: bool = Depends(require_admin)):
+    docs = await db.reviews.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return docs
+
+@api_router.post("/admin/reviews", response_model=Review)
+async def admin_create_review(payload: ReviewCreate, _: bool = Depends(require_admin)):
+    review = Review(**payload.model_dump())
+    await db.reviews.insert_one(review.model_dump())
+    return review
+
+@api_router.patch("/admin/reviews/{review_id}")
+async def admin_update_review(review_id: str, payload: ReviewUpdate, _: bool = Depends(require_admin)):
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if not update:
+        return {"ok": True}
+    res = await db.reviews.update_one({"id": review_id}, {"$set": update})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Review not found")
+    return {"ok": True}
+
+@api_router.delete("/admin/reviews/{review_id}")
+async def admin_delete_review(review_id: str, _: bool = Depends(require_admin)):
+    res = await db.reviews.delete_one({"id": review_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Review not found")
+    return {"ok": True}
 
 # Include router
 app.include_router(api_router)

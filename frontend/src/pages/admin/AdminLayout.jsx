@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, CalendarDays, MessageSquare, Activity, LogOut, DollarSign } from "lucide-react";
+import { LayoutDashboard, CalendarDays, MessageSquare, Activity, LogOut, DollarSign, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/admin/overview", label: "Overview", icon: LayoutDashboard },
   { to: "/admin/bookings", label: "Bookings", icon: CalendarDays },
   { to: "/admin/inquiries", label: "Inquiries", icon: MessageSquare },
+  { to: "/admin/reviews", label: "Reviews", icon: Star },
   { to: "/admin/live-feed", label: "Live Feed", icon: Activity },
 ];
 
@@ -56,7 +57,7 @@ export default function AdminLayout() {
             <DollarSign className="w-5 h-5 text-[#C8860A]" />
           </div>
           <div className="font-serif text-base leading-tight">
-            Ranthambore&apos;s<br />Curator
+            Ranthambore Safari<br />Curator
           </div>
         </div>
         <nav className="flex-1 py-4">

@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import PublicLayout from "@/components/PublicLayout";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { CheckCircle2, ChevronDown, Sunrise, Sunset, Minus, Plus, ArrowRight, AlertCircle } from "lucide-react";
+import { CheckCircle2, ChevronDown, Sunrise, Sunset, Minus, Plus, ArrowRight } from "lucide-react";
 import { api, waLink } from "@/lib/api";
 import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
-import { SAFARI_HERO_IMG, SAFARI_PRICES, ZONES, SAFARI_TIMINGS } from "@/lib/content";
+import { SAFARI_HERO_IMG, SAFARI_PRICES, SAFARI_TIMINGS } from "@/lib/content";
 
 const STEP_LABELS = ["Date & Session", "Safari Details", "Visitor Details"];
 
@@ -16,19 +15,12 @@ export default function SafariBooking() {
   const [date, setDate] = useState(null);
   const [shift, setShift] = useState(null);
   const [vehicle, setVehicle] = useState(SAFARI_PRICES[2].value); // gypsy default
-  const [zone, setZone] = useState("3");
-  const [nationality, setNationality] = useState("Indian");
   const [guests, setGuests] = useState(2);
   const [chambal, setChambal] = useState(false);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [age, setAge] = useState("");
-  const [idProofType, setIdProofType] = useState("");
-  const [idProofNumber, setIdProofNumber] = useState("");
-  const [emergencyName, setEmergencyName] = useState("");
-  const [emergencyNumber, setEmergencyNumber] = useState("");
 
   const [success, setSuccess] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -40,12 +32,7 @@ export default function SafariBooking() {
   const [tGuests, setTGuests] = useState(2);
   const [tSubmitting, setTSubmitting] = useState(false);
 
-  const selectedPrice = useMemo(() => SAFARI_PRICES.find((p) => p.value === vehicle), [vehicle]);
-  const perPerson = selectedPrice ? selectedPrice[nationality === "Indian" ? "indian" : "foreigner"] : 0;
-  const isTotalPriced = selectedPrice?.total;
-  const baseTotal = isTotalPriced ? perPerson : perPerson * guests;
-  const addonTotal = chambal ? 800 * guests : 0;
-  const total = baseTotal + addonTotal;
+  const selectedPrice = SAFARI_PRICES.find((p) => p.value === vehicle);
 
   useEffect(() => {
     if (window.location.hash === "#tatkal") {
@@ -55,35 +42,25 @@ export default function SafariBooking() {
   }, []);
 
   function canProceed1() { return date && shift; }
-  function canProceed2() { return vehicle && zone && guests > 0; }
-  function canSubmit() { return fullName && email && whatsapp && idProofType && idProofNumber; }
+  function canProceed2() { return vehicle && guests > 0; }
+  function canSubmit() { return fullName && email && whatsapp; }
 
   async function submitBooking() {
     if (!canSubmit()) {
-      toast.error("Please complete all required visitor details.");
+      toast.error("Please fill name, WhatsApp number and email.");
       return;
     }
     setSubmitting(true);
     try {
-      const z = ZONES.find((zo) => String(zo.id) === String(zone));
       const payload = {
         date: date.toISOString().slice(0, 10),
         shift,
         vehicle: selectedPrice.type,
-        zone: z ? `${z.id} — ${z.name}` : String(zone),
-        nationality,
         guests,
-        per_person: perPerson,
-        total,
         addons: chambal ? ["Chambal River Safari"] : [],
         full_name: fullName,
         email,
         whatsapp,
-        age: age ? Number(age) : null,
-        id_proof_type: idProofType,
-        id_proof_number: idProofNumber,
-        emergency_contact_name: emergencyName,
-        emergency_contact_number: emergencyNumber,
         is_tatkal: selectedPrice.tatkal || false,
       };
       const { data } = await api.post("/bookings", payload);
@@ -125,9 +102,9 @@ export default function SafariBooking() {
   // SUCCESS SCREEN
   if (success) {
     const ref = success.ref;
-    const waMsg = waLink(`Hi! Booking ${ref}. Name: ${success.full_name}. Date: ${success.date} ${success.shift}. Vehicle: ${success.vehicle}. Zone: ${success.zone}. Guests: ${success.guests}. Total ₹${success.total}.`);
+    const waMsg = waLink(`Hi! Booking ${ref}. Name: ${success.full_name}. Date: ${success.date} ${success.shift}. Vehicle: ${success.vehicle}. Guests: ${success.guests}.`);
     return (
-      <PublicLayout title="Booking Received | Ranthambore's Curator" description="Your safari booking request has been received.">
+      <PublicLayout title="Booking Received | Ranthambore Safari Curator" description="Your safari booking request has been received.">
         <section className="min-h-[80vh] flex items-center justify-center px-6 py-24 bg-[#F9F5EE]">
           <div className="max-w-xl text-center bg-white rounded-3xl p-10 shadow-xl border border-stone-200">
             <div className="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-6">
@@ -156,7 +133,7 @@ export default function SafariBooking() {
 
   return (
     <PublicLayout
-      title="Book Ranthambore Safari Online — Jeep & Canter Safari | Ranthambore's Curator"
+      title="Book Ranthambore Safari Online — Jeep & Canter Safari | Ranthambore Safari Curator"
       description="Book Ranthambore Jeep Safari and Canter Safari online. Choose your zone, date and shift. WhatsApp confirmation in 30 minutes. Tatkal safari available."
     >
       {/* HERO */}
@@ -173,18 +150,11 @@ export default function SafariBooking() {
         </div>
       </section>
 
-      {/* Zone closure alert */}
-      <div className="bg-[#E63946]/10 border-y border-[#E63946]/30 text-[#9b1f29]">
-        <div className="max-w-6xl mx-auto px-6 py-3 text-sm flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" />
-          <span><strong>Zone Closures:</strong> Zones 6–10 closed every Tuesday · Zones 1–5 closed every Wednesday</span>
-        </div>
-      </div>
+      {/* Zone closure alert removed */}
 
       <section className="py-16 md:py-20 bg-[#F9F5EE]">
-        <div className="max-w-6xl mx-auto px-5 md:px-6 grid lg:grid-cols-3 gap-8">
-          {/* MAIN COLUMN */}
-          <div className="lg:col-span-2 space-y-8">
+        <div className="max-w-3xl mx-auto px-5 md:px-6">
+          <div className="space-y-8">
             {/* Step indicator */}
             <div className="flex items-center justify-between" data-testid="booking-step-indicator">
               {STEP_LABELS.map((label, i) => {
@@ -285,38 +255,8 @@ export default function SafariBooking() {
                           {p.tatkal && <span className="text-[10px] uppercase tracking-wider bg-[#E63946]/10 text-[#E63946] px-2 py-0.5 rounded-full">Tatkal</span>}
                         </div>
                         <div className="text-xs text-stone-600 mt-1">{p.sub}</div>
-                        <div className="mt-2 text-sm">
-                          IN ₹{p.indian.toLocaleString("en-IN")}{p.total ? " total" : "/person"} · FR ₹{p.foreigner.toLocaleString("en-IN")}{p.total ? " total" : "/person"}
-                        </div>
                       </button>
                     ))}
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium block mb-2">Zone</label>
-                    <Select value={zone} onValueChange={setZone}>
-                      <SelectTrigger data-testid="zone-select" className="w-full"><SelectValue placeholder="Choose a zone" /></SelectTrigger>
-                      <SelectContent>
-                        {ZONES.map((z) => (
-                          <SelectItem key={z.id} value={String(z.id)}>Zone {z.id} — {z.name} ({z.wildlife})</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium block mb-2">Nationality</label>
-                    <div className="flex gap-2">
-                      {["Indian", "Foreigner"].map((n) => (
-                        <button
-                          key={n}
-                          data-testid={`nationality-${n.toLowerCase()}`}
-                          onClick={() => setNationality(n)}
-                          className={`flex-1 py-2.5 rounded-full border text-sm ${nationality === n ? "bg-[#1A2B1F] text-white border-[#1A2B1F]" : "border-stone-300 hover:border-[#1A2B1F]"}`}
-                        >{n}</button>
-                      ))}
-                    </div>
                   </div>
                 </div>
 
@@ -331,7 +271,7 @@ export default function SafariBooking() {
 
                 <label className="flex items-center gap-2 text-sm">
                   <Checkbox checked={chambal} onCheckedChange={setChambal} data-testid="addon-chambal" />
-                  Add Chambal River Safari (+₹800/person)
+                  Add Chambal River Safari
                 </label>
 
                 <div className="flex justify-between">
@@ -350,23 +290,9 @@ export default function SafariBooking() {
               <div className="bg-white rounded-2xl p-6 md:p-8 border border-stone-200 shadow-sm space-y-4">
                 <h2 className="font-serif text-2xl">Visitor Details</h2>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <input data-testid="visitor-name" placeholder="Full Name" value={fullName} onChange={(e)=>setFullName(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
-                  <input data-testid="visitor-email" type="email" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
-                  <input data-testid="visitor-whatsapp" placeholder="WhatsApp Number" value={whatsapp} onChange={(e)=>setWhatsapp(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
-                  <input data-testid="visitor-age" type="number" placeholder="Age" value={age} onChange={(e)=>setAge(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
-                  <Select value={idProofType} onValueChange={setIdProofType}>
-                    <SelectTrigger data-testid="id-proof-type"><SelectValue placeholder="ID Proof Type" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Aadhaar">Aadhaar</SelectItem>
-                      <SelectItem value="Passport">Passport</SelectItem>
-                      <SelectItem value="Driving License">Driving License</SelectItem>
-                      <SelectItem value="PAN">PAN</SelectItem>
-                      <SelectItem value="Voter ID">Voter ID</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <input data-testid="id-proof-number" placeholder="ID Proof Number" value={idProofNumber} onChange={(e)=>setIdProofNumber(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
-                  <input placeholder="Emergency Contact Name" value={emergencyName} onChange={(e)=>setEmergencyName(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
-                  <input placeholder="Emergency Contact Number" value={emergencyNumber} onChange={(e)=>setEmergencyNumber(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
+                  <input data-testid="visitor-name" placeholder="Name" required value={fullName} onChange={(e)=>setFullName(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
+                  <input data-testid="visitor-whatsapp" type="tel" placeholder="WhatsApp Number" required value={whatsapp} onChange={(e)=>setWhatsapp(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
+                  <input data-testid="visitor-email" type="email" placeholder="Email" required value={email} onChange={(e)=>setEmail(e.target.value)} className="sm:col-span-2 px-3 py-2.5 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#C8860A]/40" />
                 </div>
                 <div className="flex justify-between pt-2">
                   <button onClick={() => setStep(2)} className="text-sm text-stone-600 hover:text-[#C8860A]">← Back</button>
@@ -375,7 +301,7 @@ export default function SafariBooking() {
                     onClick={submitBooking}
                     disabled={submitting}
                     className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#C8860A] hover:bg-[#a86f08] text-white font-semibold disabled:opacity-60"
-                  >{submitting ? "Submitting..." : "Submit Booking"} <ArrowRight className="w-4 h-4" /></button>
+                  >{submitting ? "Submitting..." : "Submit Booking Request"} <ArrowRight className="w-4 h-4" /></button>
                 </div>
                 <p className="text-xs text-stone-500">No payment taken on this website. Our team confirms on WhatsApp within 30 minutes.</p>
               </div>
@@ -411,24 +337,6 @@ export default function SafariBooking() {
               </CollapsibleContent>
             </Collapsible>
           </div>
-
-          {/* STICKY PRICE PANEL */}
-          <aside className="lg:sticky lg:top-24 self-start">
-            <div data-testid="price-panel" className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 space-y-3">
-              <h3 className="font-serif text-xl">Your Safari</h3>
-              <Row k="Date" v={date ? date.toLocaleDateString() : "—"} />
-              <Row k="Shift" v={shift ? shift[0].toUpperCase() + shift.slice(1) : "—"} />
-              <Row k="Vehicle" v={selectedPrice?.type || "—"} />
-              <Row k="Zone" v={ZONES.find(z => String(z.id) === String(zone))?.name || "—"} />
-              <Row k="Guests" v={guests} />
-              <Row k="Per Person" v={isTotalPriced ? `₹${perPerson.toLocaleString("en-IN")} total` : `₹${perPerson.toLocaleString("en-IN")}`} />
-              {chambal && <Row k="Chambal Add-on" v={`₹${(800 * guests).toLocaleString("en-IN")}`} />}
-              <div className="border-t border-stone-200 pt-3 flex justify-between font-bold text-lg">
-                <span>Total</span><span data-testid="price-total">₹{total.toLocaleString("en-IN")}</span>
-              </div>
-              <p className="text-xs text-stone-500">No payment taken here. Our team confirms on WhatsApp.</p>
-            </div>
-          </aside>
         </div>
       </section>
 
@@ -454,12 +362,9 @@ export default function SafariBooking() {
           </div>
           <div className="grid md:grid-cols-2 gap-8 items-start">
             <div className="bg-black/30 rounded-2xl p-6 border border-white/10">
-              <h3 className="font-serif text-xl mb-3">Tatkal Pricing</h3>
-              <div className="text-sm space-y-2">
-                <div className="flex justify-between"><span>Tatkal Gypsy — Indian</span><span className="font-semibold">₹30,000 total</span></div>
-                <div className="flex justify-between"><span>Tatkal Gypsy — Foreign</span><span className="font-semibold">₹45,000 total</span></div>
-              </div>
-              <p className="text-xs text-white/60 mt-4">VIP Safari · 6-seater open Gypsy · zone allocated on the day.</p>
+              <h3 className="font-serif text-xl mb-3">Tatkal Booking</h3>
+              <p className="text-sm text-white/85">Last-minute Tatkal seats released by the forest department exactly one day before each safari. Share your details and we will secure your spot the second the window opens.</p>
+              <p className="text-xs text-white/60 mt-4">Tatkal · 6-seater open Gypsy · zone allocated on the day.</p>
             </div>
             <form onSubmit={submitTatkal} className="bg-white text-[#1C1C1C] rounded-2xl p-6 space-y-3" data-testid="tatkal-form">
               <h3 className="font-serif text-xl">Tatkal Request</h3>
@@ -478,14 +383,5 @@ export default function SafariBooking() {
         </div>
       </section>
     </PublicLayout>
-  );
-}
-
-function Row({ k, v }) {
-  return (
-    <div className="flex justify-between text-sm">
-      <span className="text-stone-500">{k}</span>
-      <span className="font-medium">{v}</span>
-    </div>
   );
 }

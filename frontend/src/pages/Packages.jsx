@@ -10,7 +10,7 @@ import HeroWhatsAppButton from "@/components/HeroWhatsAppButton";
 export default function Packages() {
   return (
     <PublicLayout
-      title="Ranthambore Tour Packages — Safari + Stay Combos | Ranthambore's Curator"
+      title="Ranthambore Tour Packages — Safari + Stay Combos | Ranthambore Safari Curator"
       description="Ranthambore tour packages from ₹3,499 per person. Safaris, stays and transfers included. Budget to luxury packages available."
     >
       <section className="relative -mt-[72px] pt-[72px] min-h-[55vh] flex items-center justify-center text-center text-white overflow-hidden">
@@ -50,7 +50,7 @@ function PackageCard({ pkg, idx }) {
         message: `Interested in ${pkg.name} · ${pkg.duration}`,
         context: { package: pkg.name, price: pkg.price, summary: `Package interest · ${pkg.name}` },
       });
-      const wa = waLink(`Hi! I'd like to book the "${pkg.name}" package (${pkg.duration}) at ₹${pkg.price.toLocaleString("en-IN")}/person.`);
+      const wa = waLink(`Hi! I'd like to book the "${pkg.name}" package (${pkg.duration}).`);
       window.open(wa, "_blank");
       toast.success("Opening WhatsApp...");
     } catch {
@@ -73,17 +73,13 @@ function PackageCard({ pkg, idx }) {
             <li key={i} className="flex items-start gap-2"><Check className="w-4 h-4 text-[#C8860A] mt-0.5" />{f}</li>
           ))}
         </ul>
-        <div className="mt-5 flex items-end justify-between">
-          <div>
-            <div className="text-xs text-stone-400 line-through">₹{pkg.original.toLocaleString("en-IN")}</div>
-            <div className="font-serif text-2xl">₹{pkg.price.toLocaleString("en-IN")}<span className="text-xs text-stone-500">/person</span></div>
-          </div>
+        <div className="mt-5 flex items-end justify-end">
           <button
             data-testid={`package-book-${idx}`}
             onClick={book}
             disabled={loading}
             className="inline-flex items-center gap-1 px-5 py-2.5 rounded-full bg-[#C8860A] hover:bg-[#a86f08] text-white text-sm font-semibold disabled:opacity-60"
-          >{loading ? "..." : "Book This"} <ArrowRight className="w-4 h-4" /></button>
+          >{loading ? "..." : "Book This Package"} <ArrowRight className="w-4 h-4" /></button>
         </div>
       </div>
     </article>

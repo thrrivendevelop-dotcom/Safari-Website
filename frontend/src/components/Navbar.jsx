@@ -37,7 +37,7 @@ export default function Navbar({ transparentOnTop = true }) {
           </div>
           <div className="leading-tight">
             <div className="font-serif text-white text-lg sm:text-xl font-bold">
-              Ranthambore&apos;s Curator
+              Ranthambore Safari Curator
             </div>
             <div className="text-[10px] tracking-[0.28em] text-[#C8860A] uppercase">
               Ranthambore

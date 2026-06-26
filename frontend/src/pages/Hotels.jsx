@@ -36,7 +36,7 @@ export default function Hotels() {
 
   return (
     <PublicLayout
-      title="Hotels Near Ranthambore National Park — Best Stays | Ranthambore's Curator"
+      title="Hotels Near Ranthambore National Park — Best Stays | Ranthambore Safari Curator"
       description="Handpicked budget, deluxe and luxury hotels near Ranthambore National Park gate. Book safari and hotel together and save 15%."
     >
       <section className="relative -mt-[72px] pt-[72px] min-h-[55vh] flex items-center justify-center text-center text-white overflow-hidden">
@@ -98,11 +98,7 @@ export default function Hotels() {
                       return Icon ? <Icon key={a} className="w-4 h-4" title={a} /> : null;
                     })}
                   </div>
-                  <div className="mt-4 flex items-end justify-between">
-                    <div>
-                      <div className="text-xs text-stone-500">From</div>
-                      <div className="font-serif text-xl">₹{h.price.toLocaleString("en-IN")}<span className="text-xs text-stone-500">/night</span></div>
-                    </div>
+                  <div className="mt-4 flex items-end justify-end">
                     <button
                       data-testid={`hotel-book-${i}`}
                       onClick={() => setOpenHotel(h)}
@@ -170,7 +166,6 @@ function HotelModal({ hotel, onClose }) {
         <div className="text-sm text-stone-600 mb-4">
           <div className="flex items-center gap-1"><MapPin className="w-4 h-4" />{hotel.dist} from park gate · ⭐ {hotel.stars}</div>
           <div className="mt-2">Amenities: {hotel.amenities.join(" · ")}</div>
-          <div className="mt-2">From <strong>₹{hotel.price.toLocaleString("en-IN")}</strong>/night</div>
         </div>
         <form onSubmit={submit} className="grid sm:grid-cols-2 gap-3" data-testid="hotel-enquiry-form">
           <input placeholder="Name" value={name} onChange={(e)=>setName(e.target.value)} className="px-3 py-2.5 rounded-lg border border-stone-300" data-testid="hotel-modal-name" />
